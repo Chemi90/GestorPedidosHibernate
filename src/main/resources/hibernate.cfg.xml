@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://hibernate.org/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <!-- a SessionFactory instance listed as /jndi/name -->
+    <session-factory>
+        <!-- properties -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://servidorxemi.mysql.database.azure.com/gestionpedidos</property>
+        <property name="hibernate.connection.password">Posnose90</property>
+        <property name="hibernate.connection.username">xemita</property>
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="show_sql">false</property>
+
+        <mapping class="com.example.gestionpedidoscondao.domain.usuario.Usuario"/>
+        <mapping class="com.example.gestionpedidoscondao.domain.pedido.Pedido"/>
+        <mapping class="com.example.gestionpedidoscondao.domain.itemPedido.ItemPedido"/>
+        <mapping class="com.example.gestionpedidoscondao.domain.producto.Producto"/>
+
+
+    </session-factory>
+</hibernate-configuration>

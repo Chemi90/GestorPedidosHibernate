@@ -1,0 +1,77 @@
+/* Estilos generales */
+.root {
+    -fx-font-family: "Arial";
+    -fx-background-color: #f2f2f2;
+}
+
+.main-window {
+    -fx-background-color: #e6e6e6;
+}
+
+/* Estilos para el logo */
+.main-logo {
+    -fx-background-color: #333;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+}
+
+.lbLogo {
+    -fx-text-fill: white;
+}
+
+/* Estilos para las tablas */
+.main-table {
+    -fx-border-color: #ccc;
+    -fx-border-width: 1px;
+}
+
+.side-cart .table-row-cell {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #e0e0e0;
+}
+
+.side-cart .table-column-cell {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #e0e0e0;
+}
+
+/* Estilos para botones */
+.menu-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px 15px;
+}
+
+.menu-button:hover {
+    -fx-background-color: #0056b3;
+}
+
+/* Estilos para el menú lateral */
+.side-menu {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 10px;
+}
+
+.side-cart {
+    -fx-background-color: #f9f9f9;
+    -fx-padding: 10px;
+}
+
+/* Estilos para el menú superior */
+MenuBar {
+    -fx-background-color: #333;
+}
+
+Menu {
+    -fx-text-fill: white;
+}
+
+MenuItem {
+    -fx-background-color: #333;
+    -fx-text-fill: white;
+}
+
+MenuItem:hover {
+    -fx-background-color: #555;
+}

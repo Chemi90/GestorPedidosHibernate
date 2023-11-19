@@ -1,0 +1,46 @@
+.border-pane {
+    -fx-background-color: #E8EAF6; /* Fondo de la ventana */
+}
+
+/* Selecciona todos los VBox dentro del .border-pane y aplica estos estilos */
+.border-pane > .center > VBox {
+    -fx-padding: 10; /* Espaciado interno */
+    -fx-border-style: solid; /* Estilo de borde */
+    -fx-border-width: 1; /* Ancho del borde */
+    -fx-border-color: black; /* Color del borde */
+    -fx-background-color: #FFFFFF; /* Fondo del cuadro de login */
+    -fx-alignment: center; /* Alinea el contenido al centro */
+
+    /* Tamaño del cuadro de login */
+    -fx-pref-width: 300px;
+    -fx-pref-height: 300px;
+
+    /* Asegúrate de que el VBox no crezca más allá de sus dimensiones preferidas */
+    -fx-max-height: 300px;
+    -fx-max-width: 300px;
+}
+
+.text-title {
+    -fx-fill: #303F9F; /* Color del título */
+}
+
+.input-field {
+    -fx-pref-width: 150px; /* Asegura que el TextField tenga un ancho consistente */
+}
+
+.button {
+    -fx-background-color: #303F9F; /* Color de fondo de los botones */
+    -fx-text-fill: white; /* Color del texto de los botones */
+    -fx-border-radius: 5; /* Bordes redondeados para los botones */
+    -fx-padding: 5 20; /* Espaciado interno de los botones */
+}
+
+.button:hover {
+    -fx-background-color: #5C6BC0; /* Color de fondo de los botones al pasar el ratón */
+}
+
+.label-footer {
+    -fx-text-fill: #5C6BC0; /* Color del texto del footer */
+    -fx-font-weight: bold; /* Negrita para el texto del footer */
+    -fx-alignment: center; /* Alinea el texto del footer al centro */
+}

@@ -1,0 +1,5 @@
+module:com.example.gestionpedidoscondao
+com.example.gestionpedidoscondao
+com.example.gestionpedidoscondao.model
+com.example.gestionpedidoscondao.persistence
+com.example.gestionpedidoscondao.controllers
