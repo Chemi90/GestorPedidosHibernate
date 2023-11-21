@@ -6,6 +6,16 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * Clase Usuario.
+ * Representa un usuario en la base de datos.
+ * Esta clase está mapeada a la tabla "usuarios" en la base de datos y contiene información sobre el usuario,
+ * incluyendo su identificador único, nombre, contraseña, email y una lista de pedidos asociados al usuario.
+ *
+ * @author Author Name
+ * @version 1.0
+ * @since 2023-11-21
+ */
 @Data
 @Entity
 @Table(name = "usuarios")

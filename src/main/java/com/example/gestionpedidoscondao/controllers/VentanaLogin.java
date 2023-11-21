@@ -8,9 +8,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Clase de controlador para la ventana de login de la aplicación.
@@ -19,7 +17,7 @@ import java.util.List;
  *
  * @author José Miguel Ruiz Guevara
  * @version 1.0
- * @since 1.0
+ * @since 2023-11-21
  */
 public class VentanaLogin {
 
@@ -62,7 +60,6 @@ public class VentanaLogin {
             alert.showAndWait();
         }
     }
-
 
     /**
      * Maneja el evento de clic en el botón de cancelar.

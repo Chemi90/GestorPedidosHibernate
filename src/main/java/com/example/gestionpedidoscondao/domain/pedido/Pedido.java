@@ -8,6 +8,17 @@ import java.util.Date;
 import java.util.Set;
 import java.util.HashSet;
 
+/**
+ * Clase Pedido.
+ * Representa un pedido en la base de datos.
+ * Esta clase está mapeada a la tabla "Pedidos" en la base de datos.
+ * Contiene información sobre el pedido, incluyendo un identificador único, código, fecha, usuario asociado, total del pedido,
+ * y un conjunto de ítems asociados al pedido.
+ *
+ * @author Author Name
+ * @version 1.0
+ * @since 2023-11-21
+ */
 @Data
 @Entity
 @Table(name = "Pedidos")

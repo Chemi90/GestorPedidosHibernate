@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author José Miguel Ruiz Guevara
  * @version 1.0
- * @since 1.0
+ * @since 2023-11-21
  */
 @Data
 @NoArgsConstructor

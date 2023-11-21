@@ -64,11 +64,18 @@
                         <Insets />
                      </VBox.margin>
                   </VBox>
-                  <VBox alignment="BOTTOM_CENTER" prefHeight="167.0" prefWidth="180.0">
+                  <HBox>
                      <children>
-                        <Button fx:id="bntModificar" mnemonicParsing="false" onAction="#onModificarClick" prefHeight="25.0" prefWidth="111.0" styleClass="menu-button" text="Modificar" />
+                        <Button fx:id="btnBorrarItem" mnemonicParsing="false" onAction="#borrar" text="Borrar">
+                           <HBox.margin>
+                              <Insets left="20.0" right="20.0" />
+                           </HBox.margin></Button>
+                        <Button fx:id="btnAñadir" mnemonicParsing="false" onAction="#añadir" prefHeight="25.0" prefWidth="55.0" styleClass="menu-button" text="Añadir" />
                      </children>
-                  </VBox>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
                </children>
             </VBox>
          </children>

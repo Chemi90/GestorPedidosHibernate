@@ -16,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,16 +23,17 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controlador de la UI para la ventana que muestra los items de un pedido.
- * Esta clase gestiona las interacciones del usuario y la presentación de
- * los datos de los items del pedido en la tabla correspondiente.
+ * Clase VentanaItemPedido que extiende de Application e implementa Initializable.
+ * Esta clase se encarga de gestionar la interfaz de usuario para el manejo de ítems de pedidos
+ * en una aplicación JavaFX.
  *
  * @author José Miguel Ruiz Guevara
  * @version 1.0
- * @since 1.0
+ * @since 2023-11-21
  */
 public class VentanaItemPedido extends Application implements Initializable {
 
+    // Definiciones de componentes de la interfaz de usuario
     @javafx.fxml.FXML
     private TableView<ItemPedido> tbItemsPedidos;
     @javafx.fxml.FXML
@@ -52,35 +52,35 @@ public class VentanaItemPedido extends Application implements Initializable {
     @javafx.fxml.FXML
     private ComboBox cbCantidad;
     @javafx.fxml.FXML
-    private Button bntModificar;
-    @javafx.fxml.FXML
     private Button btnBorrar;
     private PedidoDAO pedidoDAO;
     private ProductoDAO productoDAO = new ProductoDAO();
+    @javafx.fxml.FXML
+    private Button btnAñadir;
+    private ItemPedido itemActual = null;
+    private Pedido pedidoActual = null;
+    @javafx.fxml.FXML
+    private Button btnBorrarItem;
 
     /**
-     * Punto de entrada principal para la aplicación JavaFX.
-     *
-     * @param args argumentos pasados a la aplicación.
+     * {@inheritDoc}
      */
     public static void main(String[] args) {
         launch(args);
     }
 
     /**
-     * Este método es llamado por el runtime de JavaFX al iniciar la aplicación.
-     * Se usa para inicializar el estado inicial de la aplicación.
+     * Método inicializador de JavaFX.
      *
-     * @param primaryStage el escenario principal para esta aplicación.
+     * @param primaryStage El escenario principal proporcionado por JavaFX.
      */
     @Override
-    public void start(Stage primaryStage) {
-        // Implementación del método start
-    }
+    public void start(Stage primaryStage) {    }
 
     /**
-     * Carga los items del pedido en la tabla de la interfaz de usuario.
-     * Hace uso de la sesión actual para obtener los datos relevantes.
+     * Carga y muestra los ítems de un pedido en la tabla de la interfaz gráfica.
+     * Este método se llama al inicializar la ventana y se encarga de llenar la tabla
+     * con los ítems correspondientes al pedido actual.
      */
     public void loadItemsPedido() {
         System.out.println("Cargando items del pedido: " + Session.getPedido());
@@ -92,20 +92,16 @@ public class VentanaItemPedido extends Application implements Initializable {
 
         List<ItemPedido> items = itemPedidoDAO.findItemsByPedidoCodigo(Session.getPedido().getCodigo());
 
-        // Utiliza CellValueFactory para acceder al nombre y precio del Producto asociado
         cnomProducto.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getProducto().getNombre()));
         cprecioProducto.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getPrecioTotal()));
         cCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
         tbItemsPedidos.setItems(FXCollections.observableArrayList(items));
     }
 
-
     /**
-     * Maneja el evento de clic en el botón de volver.
-     * Cambia la vista a la ventana principal de la aplicación.
+     * Vuelve a la ventana principal de la aplicación.
      *
-     * @param actionEvent El evento que desencadenó el método.
-     * @throws IOException Si ocurre un error durante el cambio de escena.
+     * @param actionEvent El evento de acción que desencadena este método.
      */
     @javafx.fxml.FXML
     public void volver(ActionEvent actionEvent) {
@@ -114,15 +110,10 @@ public class VentanaItemPedido extends Application implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     /**
-     * Inicializa el controlador después de que su elemento raíz ha sido
-     * completamente procesado.
-     *
-     * @param url El location utilizado para resolver rutas relativas para el objeto raíz, o null si la location no es conocida.
-     * @param resourceBundle El recurso usado para localizar el objeto raíz, o null si el recurso no fue encontrado.
+     * {@inheritDoc}
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -131,6 +122,10 @@ public class VentanaItemPedido extends Application implements Initializable {
         agregarListenerTabla();
     }
 
+    /**
+     * Agrega un listener a la tabla de ítems de pedidos.
+     * Este listener actualiza la interfaz de usuario cuando se selecciona un ítem en la tabla.
+     */
     private void agregarListenerTabla() {
         tbItemsPedidos.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -140,17 +135,23 @@ public class VentanaItemPedido extends Application implements Initializable {
         });
     }
 
+    /**
+     * Actualiza los elementos de la interfaz de usuario con los detalles del ítem seleccionado.
+     *
+     * @param itemSeleccionado Ítem de pedido seleccionado en la tabla.
+     */
     private void actualizarInterfazUsuarioConItemSeleccionado(ItemPedido itemSeleccionado) {
-        // Actualizar cbItem con el producto seleccionado
+
         cbItem.getSelectionModel().select(itemSeleccionado.getProducto().getNombre());
 
-        // Actualizar lbPrecio con el precio total
         lbPrecio.setText(String.format("%.2f", itemSeleccionado.getPrecioTotal()));
 
-        // Actualizar cbCantidad con la cantidad seleccionada
         cbCantidad.getSelectionModel().select(Integer.valueOf(itemSeleccionado.getCantidad()));
     }
 
+    /**
+     * Carga los nombres de los productos en el ComboBox de la interfaz de usuario.
+     */
     private void loadNombresProductosIntoComboBox() {
         List<Producto> productos = productoDAO.getAll();
         List<String> nombreProductos = new ArrayList<>();
@@ -161,6 +162,10 @@ public class VentanaItemPedido extends Application implements Initializable {
         listenerProductoSeleccionado(productos);
     }
 
+    /**
+     * Agrega un listener al ComboBox de productos.
+     * Este listener actualiza la interfaz de usuario según el producto seleccionado.
+     */
     private void listenerProductoSeleccionado(List<Producto> productos) {
         cbItem.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             Producto selectedProducto = productos.stream()
@@ -174,6 +179,11 @@ public class VentanaItemPedido extends Application implements Initializable {
         });
     }
 
+    /**
+     * Actualiza el ComboBox de cantidades con los valores disponibles para el producto seleccionado.
+     *
+     * @param producto Producto seleccionado en el ComboBox.
+     */
     private void updateCantidadComboBox(Producto producto) {
         cbCantidad.getItems().clear();
         if (producto != null) {
@@ -183,6 +193,11 @@ public class VentanaItemPedido extends Application implements Initializable {
         }
     }
 
+    /**
+     * Actualiza la etiqueta de precio en la interfaz de usuario con el precio del producto seleccionado.
+     *
+     * @param producto Producto seleccionado en el ComboBox.
+     */
     private void loadPrecioProductosIntoLabel(Producto producto){
         if (producto != null) {
             lbPrecio.setText(String.valueOf(producto.getPrecio()));
@@ -191,48 +206,24 @@ public class VentanaItemPedido extends Application implements Initializable {
         }
     }
 
-    @javafx.fxml.FXML
-    public void onModificarClick(ActionEvent actionEvent) {
-        ItemPedido itemSeleccionado = tbItemsPedidos.getSelectionModel().getSelectedItem();
-        if (itemSeleccionado == null) {
-            return;
-        }
-
-        try {
-            int nuevaCantidad = Integer.parseInt(cbCantidad.getValue().toString());
-            itemSeleccionado.setCantidad(nuevaCantidad);
-
-            // Recalcular el precio total del pedido
-            double totalPedido = 0.0;
-            for (ItemPedido item : itemSeleccionado.getPedido().getItemsPedidos()) {
-                totalPedido += item.getPrecioTotal();
-            }
-            Pedido pedido = itemSeleccionado.getPedido();
-            pedido.setTotal(totalPedido);
-
-            // Actualizar en base de datos
-            itemPedidoDAO.update(itemSeleccionado);
-            pedidoDAO.update(pedido);
-
-            // Actualizar la UI si es necesario
-            recargarYRefrescarTablaItems();
-
-        } catch (Exception e) {
-            // Manejar la excepción, por ejemplo, mostrando un mensaje de error.
-        }
-    }
-
+    /**
+     * Recarga y refresca la tabla de ítems de pedidos con la información actualizada.
+     */
     private void recargarYRefrescarTablaItems() {
-        // Suponiendo que tienes un método para obtener el código del pedido actual
+
         String codigoPedido = Session.getPedido().getCodigo();
         List<ItemPedido> itemsActualizados = itemPedidoDAO.findItemsByPedidoCodigo(codigoPedido);
 
-        // Actualizar la tabla
         tbItemsPedidos.setItems(FXCollections.observableArrayList(itemsActualizados));
         tbItemsPedidos.refresh();
     }
 
-
+    /**
+     * Maneja la acción de borrar un pedido completo.
+     * Muestra un diálogo de confirmación antes de proceder con la eliminación.
+     *
+     * @param actionEvent Evento que desencadena esta acción.
+     */
     @javafx.fxml.FXML
     public void onBorrarClick(ActionEvent actionEvent) {
         String codigoPedido = Session.getPedido().getCodigo();
@@ -245,5 +236,94 @@ public class VentanaItemPedido extends Application implements Initializable {
             pedidoDAO.deleteByCodigo(codigoPedido);
             volver(null);
         }
+    }
+
+    /**
+     * Maneja la acción de borrar un ítem de pedido individual.
+     * Muestra un diálogo de confirmación antes de proceder con la eliminación.
+     *
+     * @param actionEvent Evento que desencadena esta acción.
+     */
+    @javafx.fxml.FXML
+    public void borrar(ActionEvent actionEvent) {
+        ItemPedido itemSeleccionado = getSelectedItemPedido();
+
+        if (itemSeleccionado != null) {
+            // Crear y mostrar el diálogo de confirmación
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("¿Deseas borrar el artículo " + itemSeleccionado.getProducto().getNombre() + " del listado?");
+            var result = alert.showAndWait();
+
+            // Comprobar si el usuario confirmó la acción
+            if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                // Solo borrar el ítem si el usuario confirma la acción
+                itemPedidoDAO.remove(itemSeleccionado);
+                recargarYRefrescarTablaItems();
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Por favor, selecciona un artículo para borrar.");
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * Obtiene el ítem de pedido seleccionado actualmente en la tabla.
+     *
+     * @return ItemPedido seleccionado, o null si no hay ninguno seleccionado.
+     */
+    public ItemPedido getSelectedItemPedido() {
+        return tbItemsPedidos.getSelectionModel().getSelectedItem();
+    }
+
+    /**
+     * Maneja la acción de añadir un nuevo ítem al pedido.
+     * Verifica la validez de la entrada y actualiza la tabla de ítems del pedido.
+     *
+     * @param actionEvent Evento que desencadena esta acción.
+     */
+    @javafx.fxml.FXML
+    public void añadir(ActionEvent actionEvent) {
+
+        if (pedidoDAO == null) {
+            pedidoDAO = new PedidoDAO();
+        }
+        if (productoDAO == null) {
+            productoDAO = new ProductoDAO();
+        }
+
+        String codigoPedido = Session.getPedido().getCodigo();
+        pedidoActual = pedidoDAO.findByCodigo(codigoPedido);
+
+        String nombreProducto = cbItem.getValue() != null ? cbItem.getValue().toString() : null;
+        Integer cantidad = cbCantidad.getValue() != null ? (int) cbCantidad.getValue() : null;
+
+        if (nombreProducto == null || cantidad == null || cantidad <= 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Entrada");
+            alert.setHeaderText("Datos de Producto Inválidos");
+            alert.setContentText("Por favor, selecciona un producto y especifica una cantidad válida.");
+            alert.showAndWait();
+            return;
+        }
+
+        Producto productoSeleccionado = productoDAO.findByName(nombreProducto);
+        if (productoSeleccionado == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Producto");
+            alert.setHeaderText("Producto No Encontrado");
+            alert.setContentText("El producto seleccionado no existe. Por favor, selecciona otro producto.");
+            alert.showAndWait();
+            return;
+        }
+
+        ItemPedido nuevoItem = new ItemPedido();
+        nuevoItem.setProducto(productoSeleccionado);
+        nuevoItem.setCantidad(cantidad);
+        nuevoItem.setPedido(pedidoActual);
+
+        itemPedidoDAO.save(nuevoItem);
+
+        recargarYRefrescarTablaItems();
     }
 }

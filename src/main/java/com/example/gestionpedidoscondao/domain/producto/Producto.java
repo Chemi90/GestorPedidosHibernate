@@ -7,6 +7,17 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Clase Producto.
+ * Representa un producto en la base de datos.
+ * Esta clase está mapeada a la tabla "Productos" en la base de datos y
+ * contiene información sobre el producto, incluyendo su identificador único, nombre, precio,
+ * cantidad disponible, y un conjunto de ítems de pedido asociados al producto.
+ *
+ * @author Author Name
+ * @version 1.0
+ * @since 2023-11-21
+ */
 @Data
 @Entity
 @Table(name = "Productos")
@@ -29,7 +40,6 @@ public class Producto {
     @Column(name = "cantidad_disponible")
     private int cantidadDisponible;
 
-    // Aquí podrías agregar relaciones con otras entidades si las hay, por ejemplo, con ItemPedido
     @OneToMany(mappedBy = "producto")
     private Set<ItemPedido> itemsPedidos = new HashSet<>();
 }

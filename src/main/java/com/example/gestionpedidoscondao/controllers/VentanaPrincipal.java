@@ -31,6 +31,7 @@ import java.util.*;
  *
  * @author José Miguel Ruiz Guevara
  * @version 1.0
+ * @since 2023-11-21
  */
 public class VentanaPrincipal extends Application implements Initializable {
 
@@ -72,39 +73,39 @@ public class VentanaPrincipal extends Application implements Initializable {
     private PedidoDAO pedidoDAO = new PedidoDAO();
 
 
-    /**
-     * Punto de entrada principal para la aplicación de JavaFX.
-     *
-     * @param args Argumentos de la línea de comandos.
-     */
     public static void main(String[] args) {
         launch(args);
     }
 
     /**
-     * Inicializa la ventana principal de la aplicación con el escenario proporcionado.
-     *
-     * @param primaryStage El escenario principal para esta aplicación, sobre el cual
-     *                     la aplicación se desarrolla.
+     * {@inheritDoc}
      */
     @Override
-    public void start(Stage primaryStage) {
-    }
+    public void start(Stage primaryStage) {}
 
+    /**
+     * Maneja el evento de clic en el botón "Comprar".
+     * Este método procesa los ítems en el carrito de compras y registra un nuevo pedido.
+     *
+     * @param event El evento que desencadena esta acción.
+     */
     @javafx.fxml.FXML
     protected void onComprarClick(ActionEvent event) {
         ObservableList<Carrito> itemsCarrito = tbCarrito.getItems();
 
         if (itemsCarrito.isEmpty()) {
-            // Mensaje de error si el carrito está vacío
-            // ... (tu código existente)
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Carrito Vacío");
+            alert.setHeaderText("No se puede realizar la compra");
+            alert.setContentText("No hay artículos en el carrito. Por favor, añade algunos productos antes de comprar.");
+            alert.showAndWait();
             return;
         }
 
         double totalCompra = calcularTotalCompra(itemsCarrito);
         String codigoPedido = generateUniqueCode();
         Date fechaPedido = new Date(System.currentTimeMillis());
-        Usuario usuario = Session.getUser(); // Asumiendo que Session.getUser() devuelve una instancia de Usuario
+        Usuario usuario = Session.getUser();
 
         Pedido pedido = new Pedido();
         pedido.setCodigo(codigoPedido);
@@ -113,14 +114,11 @@ public class VentanaPrincipal extends Application implements Initializable {
         pedido.setTotal(totalCompra);
 
         try {
-            // Iniciar transacción con Hibernate
             try(org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession()) {
                 Transaction tx = session.beginTransaction();
 
-                // Guardar el pedido
                 session.save(pedido);
 
-                // Guardar cada item del carrito como ItemPedido
                 for (Carrito item : itemsCarrito) {
                     Producto producto = productoDAO.findByName(item.getNombre()); // Método para buscar Producto por nombre
                     ItemPedido itemPedido = new ItemPedido();
@@ -131,17 +129,13 @@ public class VentanaPrincipal extends Application implements Initializable {
                     session.save(itemPedido);
                 }
 
-                // Confirmar la transacción
                 tx.commit();
 
-                // Limpiar el carrito y actualizar la interfaz
                 itemsCarrito.clear();
                 tbCarrito.getItems().clear();
 
-                // Actualizar la tabla de pedidos
                 actualizarTablaPedidos();
 
-                // Mostrar mensaje de éxito
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Compra Exitosa");
                 alert.setHeaderText(null);
@@ -153,13 +147,22 @@ public class VentanaPrincipal extends Application implements Initializable {
         }
     }
 
+    /**
+     * Actualiza la tabla de pedidos con la información más reciente del usuario actual.
+     * Este método se llama para refrescar la vista de pedidos después de realizar una compra o al iniciar la sesión.
+     */
     private void actualizarTablaPedidos() {
-        // Suponiendo que tienes un método en PedidoDAO para obtener pedidos del usuario
+
         List<Pedido> pedidosActualizados = pedidoDAO.findByUsuarioId(Math.toIntExact(Session.getUser().getId()));
         tbPedidos.setItems(FXCollections.observableArrayList(pedidosActualizados));
     }
 
-
+    /**
+     * Calcula el total de la compra a partir de los ítems en el carrito.
+     *
+     * @param itemsCarrito La lista observable de ítems en el carrito.
+     * @return El valor total de la compra.
+     */
     private double calcularTotalCompra(ObservableList<Carrito> itemsCarrito) {
         double total = 0;
         for (Carrito item : itemsCarrito) {
@@ -168,37 +171,44 @@ public class VentanaPrincipal extends Application implements Initializable {
         return total;
     }
 
-
+    /**
+     * Maneja el evento de clic en el botón "Cancelar".
+     * Este método limpia el carrito de compras.
+     *
+     * @param actionEvent El evento que desencadena esta acción.
+     */
     @javafx.fxml.FXML
     public void onCancelarClick(ActionEvent actionEvent) {
         tbCarrito.getItems().clear();
     }
 
+    /**
+     * Maneja el evento de clic en el botón "Añadir" para añadir un producto al carrito.
+     * Este método agrega un nuevo ítem al carrito basado en la selección del usuario.
+     *
+     * @param actionEvent El evento que desencadena esta acción.
+     */
     @javafx.fxml.FXML
     public void onAñadirClick(ActionEvent actionEvent) {
         String productoSeleccionado = cbItem.getValue() != null ? cbItem.getValue().toString() : null;
         Integer cantidadSeleccionada = cbCantidad.getValue() != null ? (int) cbCantidad.getValue() : null;
 
         if (productoSeleccionado == null || cantidadSeleccionada == null || cantidadSeleccionada <= 0) {
-            // Mostrar alerta si no se ha seleccionado el producto o la cantidad es incorrecta
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error en selección");
             alert.setHeaderText(null);
             alert.setContentText("Por favor, selecciona un producto y una cantidad válida.");
             alert.showAndWait();
-            return; // Salir del método
+            return;
         }
 
         Double precioUnitario = Double.parseDouble(lbPrecio.getText().replace("Precio: ", ""));
         Double total = cantidadSeleccionada * precioUnitario; // Calcular el total
 
-        // Crear un nuevo elemento para el carrito
         Carrito carritoItem = new Carrito(productoSeleccionado, cantidadSeleccionada, total);
 
-        // Agregar el elemento al TableView tbCarrito
         tbCarrito.getItems().add(carritoItem);
 
-        // Llena las columnas de la tabla tbCarrito (si no se han llenado previamente)
         if (cNombre.getCellData(0) == null) {
             cNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
             cCantidadCarrito.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
@@ -207,6 +217,12 @@ public class VentanaPrincipal extends Application implements Initializable {
         }
     }
 
+    /**
+     * Genera un código único para identificar un pedido.
+     * Este método utiliza la hora actual y un valor aleatorio para asegurar la unicidad.
+     *
+     * @return Un código de pedido único.
+     */
     public String generateUniqueCode() {
         long timestamp = System.currentTimeMillis();
         int randomValue = (int) (Math.random() * 1000);
@@ -214,6 +230,12 @@ public class VentanaPrincipal extends Application implements Initializable {
         return uniqueCode;
     }
 
+    /**
+     * Maneja el evento de clic en la opción de menú "Cerrar sesión".
+     * Este método cambia la vista a la pantalla de inicio de sesión.
+     *
+     * @param actionEvent El evento que desencadena esta acción.
+     */
     @javafx.fxml.FXML
     public void onLogoutClick(ActionEvent actionEvent) {
         try {
@@ -224,26 +246,19 @@ public class VentanaPrincipal extends Application implements Initializable {
     }
 
     /**
-     * Manejador del evento de clic para el elemento de menú 'Cerrar'.
-     * Cierra la ventana actual y, como resultado, la aplicación si esta es la única ventana abierta.
+     * Maneja el evento de clic en la opción de menú "Cerrar".
+     * Este método cierra la aplicación.
      *
-     * @param actionEvent El evento de acción que desencadenó este método.
+     * @param actionEvent El evento que desencadena esta acción.
      */
     @javafx.fxml.FXML
     public void onCloseClick(ActionEvent actionEvent) {
-        // Cerrar la aplicación
         Stage stage = (Stage) btnCancelar.getScene().getWindow();
         stage.close();
     }
 
     /**
-     * Este método se invoca automáticamente para inicializar el controlador después de que su
-     * elemento raíz ha sido completamente procesado.
-     *
-     * @param url            La ubicación utilizada para resolver rutas relativas para el objeto raíz,
-     *                       o {@code null} si la ubicación no es conocida.
-     * @param resourceBundle El recurso que se utilizó para localizar el objeto raíz, o {@code null}
-     *                       si el objeto raíz no fue localizado.
+     * {@inheritDoc}
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -253,6 +268,10 @@ public class VentanaPrincipal extends Application implements Initializable {
         chageSceneToItemsPedidos();
     }
 
+    /**
+     * Cambia la escena a la ventana de gestión de ítems de pedidos.
+     * Este método se activa al seleccionar un pedido de la tabla de pedidos.
+     */
     private void chageSceneToItemsPedidos() {
         tbPedidos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -269,7 +288,8 @@ public class VentanaPrincipal extends Application implements Initializable {
     }
 
     /**
-     * Carga los pedidos del usuario y actualiza la interfaz de usuario en consecuencia.
+     * Carga los pedidos del usuario actual y los muestra en la tabla.
+     * Este método llena la tabla de pedidos con los pedidos realizados por el usuario.
      */
     private void loadPedidosUsuario() {
         List<Pedido> pedidos = pedidoDAO.findByUsuarioId(Math.toIntExact(Session.getUser().getId()));
@@ -290,12 +310,11 @@ public class VentanaPrincipal extends Application implements Initializable {
         }
     }
 
-
     /**
-     * Actualiza la etiqueta de precio basándose en el producto seleccionado.
-     * Si el producto es {@code null}, se establece el texto de la etiqueta a "$0.00".
+     * Actualiza la etiqueta de precio con el precio del producto seleccionado.
+     * Este método se llama cuando el usuario selecciona un producto del ComboBox.
      *
-     * @param producto El producto cuyo precio se debe mostrar.
+     * @param producto El producto seleccionado.
      */
     private void loadPrecioProductosIntoLabel(Producto producto){
         if (producto != null) {
@@ -306,12 +325,21 @@ public class VentanaPrincipal extends Application implements Initializable {
     }
 
     /**
-     * Carga los nombres de todos los productos en el ComboBox para la selección del usuario.
-     * Además, establece un oyente para cuando se selecciona un nuevo producto,
-     * para actualizar la interfaz de usuario correspondientemente.
+     * Carga los nombres de los productos en el ComboBox de la interfaz de usuario.
+     * Este método se utiliza para llenar la lista desplegable con los nombres de los productos disponibles.
      */
     private void loadNombresProductosIntoComboBox() {
         List<Producto> productos = productoDAO.getAll();
+
+        if (productos == null || productos.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Carga");
+            alert.setHeaderText(null);
+            alert.setContentText("No se pudieron cargar los productos. Por favor, verifica la conexión con la base de datos.");
+            alert.showAndWait();
+            return;
+        }
+
         List<String> nombreProductos = new ArrayList<>();
         for (Producto producto : productos) {
             nombreProductos.add(producto.getNombre());
@@ -320,11 +348,12 @@ public class VentanaPrincipal extends Application implements Initializable {
         listenerProductoSeleccionado(productos);
     }
 
+
     /**
-     * Añade un oyente al ComboBox de productos que actualiza la cantidad disponible y
-     * el precio en la interfaz de usuario cuando se selecciona un producto.
+     * Agrega un listener al ComboBox de productos.
+     * Este listener actualiza la interfaz de usuario cuando se selecciona un producto diferente.
      *
-     * @param productos Lista de productos para los que se establecerá el oyente.
+     * @param productos Lista de productos disponibles para selección.
      */
     private void listenerProductoSeleccionado(List<Producto> productos) {
         cbItem.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -340,10 +369,10 @@ public class VentanaPrincipal extends Application implements Initializable {
     }
 
     /**
-     * Actualiza el ComboBox de cantidad basándose en la cantidad disponible del producto seleccionado.
-     * Limpia el ComboBox actual y añade la cantidad de elementos según la disponibilidad del producto.
+     * Actualiza el ComboBox de cantidades basado en la disponibilidad del producto seleccionado.
+     * Este método rellena el ComboBox de cantidades con números desde 1 hasta la cantidad disponible del producto.
      *
-     * @param producto El producto seleccionado cuya cantidad disponible determinará las opciones de cantidad.
+     * @param producto El producto seleccionado en el ComboBox.
      */
     private void updateCantidadComboBox(Producto producto) {
         cbCantidad.getItems().clear();

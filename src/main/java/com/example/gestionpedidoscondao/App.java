@@ -16,6 +16,7 @@ import java.io.IOException;
  *
  * @author José Miguel Ruiz Guevara
  * @version 1.0
+ * @since 2023-11-21
  * @see Application
  */
 public class App extends Application {
